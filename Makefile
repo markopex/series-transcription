@@ -1,7 +1,7 @@
-.PHONY: all backend frontend pipeline worker stop stop-backend stop-frontend stop-pipeline stop-worker install-frontend
+.PHONY: all backend frontend pipeline worker chat stop stop-backend stop-frontend stop-pipeline stop-worker stop-chat install-frontend
 
 # Run all services
-all: backend frontend worker
+all: backend frontend worker chat
 
 # Backend: Spring Boot + Elasticsearch + Redis via Docker Compose
 backend:
@@ -14,6 +14,10 @@ frontend:
 # Pipeline worker: continuous job processor
 worker:
 	cd series-transcription-pipeline && PYTHONPATH=. python -m src.worker &
+
+# Chat agent + MCP server + Elasticsearch (for LLM chatbot)
+chat:
+	cd series-transcription-pipeline && docker compose -f compose.services.yaml up -d
 
 # Pipeline CLI (usage: make transcribe AUDIO=input.mp3 OUT=output.json)
 transcribe:
@@ -34,7 +38,7 @@ install-frontend:
 	cd series-transcription-front/frontend && npm install
 
 # Stop all services
-stop: stop-backend stop-frontend stop-worker
+stop: stop-backend stop-frontend stop-worker stop-chat
 
 stop-backend:
 	cd SeriesTranscription && docker compose down
@@ -44,3 +48,6 @@ stop-frontend:
 
 stop-worker:
 	@pkill -f "src.worker" 2>/dev/null || true
+
+stop-chat:
+	cd series-transcription-pipeline && docker compose -f compose.services.yaml down
