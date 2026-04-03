@@ -1,0 +1,9 @@
+[submodule "SeriesTranscription"]
+	path = SeriesTranscription
+	url = https://github.com/markopex/series-transcription-backend.git
+[submodule "series-transcription-front"]
+	path = series-transcription-front
+	url = https://github.com/markopex/series-transcription-frontend.git
+[submodule "series-transcription-pipeline"]
+	path = series-transcription-pipeline
+	url = https://github.com/markopex/series-transcription-pipeline.git
