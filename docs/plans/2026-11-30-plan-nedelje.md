@@ -21,8 +21,8 @@
 ## Ponedeljak 30. 11 — sređivanje i odluke
 
 **Kod i grane (≈1 h)**
-- [ ] `git pull` na `feat/in-context-generation` (lokalno je 9 komitova iza `origin`).
-- [ ] Pregledati neprijavljene fajlove (`data/pipeline.db*`, `profiles_v1.zip`, `episode_generator/prompts/To roll out`, `.bak` baze) — odlučiti šta ide u git, šta u `.gitignore`, šta u arhivu. **Ništa ne brisati.**
+- [x] `git pull` na `feat/in-context-generation` (lokalno je 9 komitova iza `origin`). — urađeno 28. 11.
+- [x] Pregledati neprijavljene fajlove (`data/pipeline.db*`, `profiles_v1.zip`, `episode_generator/prompts/To roll out`, `.bak` baze) — odlučiti šta ide u git, šta u `.gitignore`, šta u arhivu. **Ništa ne brisati.** — urađeno 28. 11. (pipeline `c597a48`).
 - [ ] Otvoriti PR za `docs/plans/2026-11-27-plan-generisanja-iz-istrazivanja.md` (grana `claude/previous-work-results-b0e8f1`) i ovaj nedeljni plan, pa ih spojiti u `master`.
 - [ ] Nabaviti `HF_TOKEN` i ubaciti ga u `.env` — odblokira transkripciju 38 epizoda na čekanju (može da radi u pozadini preko nedelje).
 
