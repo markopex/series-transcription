@@ -27,10 +27,12 @@
 - [ ] Nabaviti `HF_TOKEN` i ubaciti ga u `.env` — odblokira transkripciju 38 epizoda na čekanju (može da radi u pozadini preko nedelje).
 
 **Odluke (≈1 h) — zatvoriti otvorena pitanja iz istraživačkog plana**
-- [ ] Kandidati za embedding model za srpski (predlog za test u utorak): `BAAI/bge-m3`, `intfloat/multilingual-e5-large`, `jinaai/jina-embeddings-v3`.
-- [ ] Writer model za Fazu 3: Gemini 2.5 Pro vs. otvoreni (Qwen / DeepSeek). Dovoljno je zapisati odluku i razlog.
-- [ ] Koliko ljudskih ocena po iteraciji je realno (predlog: 30 parova, 1–2 ocenjivača).
-- [ ] Pravilo sečenja transkripta na scene (predlog: prozor od N replika oko replike lika + prekid na pauzi > X s ili promeni teme).
+- [x] **Embedding model** — testiraju se `BAAI/bge-m3` (glavni kandidat) i `intfloat/multilingual-e5-large`, uz **BM25 kao osnovu**. `jina-embeddings-v3` ispada (nekomercijalna licenca, proveriti). Pobednik je model sa najboljim recall@10; ako nijedan ne pređe ~60%, hibrid (bge-m3 daje i retki vektor). *Razlog:* bge-m3 podržava srpski u latinici i ćirilici; BM25 pokazuje da li embedding uopšte donosi nešto.
+- [x] **Writer model za Fazu 3** — ostaje **Gemini 2.5 Pro**. *Razlog:* već ugrađen u `episode_generator` i `chat_agent`, najbolji srpski od dostupnih, a promena modela uz promenu prompta pokvarila bi A/B poređenje. Otvoreni model (Qwen / DeepSeek) dolazi u obzir tek u Fazi 5 (fine-tune).
+- [x] **Ljudske ocene** — **30 parova po iteraciji**, jedan glavni ocenjivač (~30–40 min). Jednom po fazi drugi ocenjivač oceni 10 istih parova radi provere slaganja. Minimum 20 parova.
+- [x] **Sečenje na scene** — dve jedinice. Izmereno na 739 transkripata: pauza > 2 s ima samo ~2,8 po epizodi (> 3 s: ~1,6), pa pauza ne može biti glavno pravilo za memoriju.
+  - *Faza 1 (memorija za chat):* prozor oko replike lika — do 3 replike pre i 1 posle (N = 3+1), bar jedna replika drugog lika, prozor ne prelazi pauzu > 2 s, cilj ~150–250 reči.
+  - *Faza 2 (komični mehanizmi):* početna podela na pauzi > 2 s (~3–4 scene po epizodi), granice se ručno ispravljaju u gold editoru; promena teme (LLM/embedding) tek kad postoje ručne granice za poređenje.
 
 ---
 
