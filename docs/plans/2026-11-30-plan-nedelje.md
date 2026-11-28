@@ -2,7 +2,7 @@
 
 **Cilj nedelje:** završiti Fazu 1 iz istraživačkog plana (`chat_agent` na ChatHaruhi pristupu, bez treninga), dokazati da je bolja od stare verzije u parovima i započeti Fazu 2 (komični mehanizmi).
 
-**Gde se radi:** glavni checkout, `series-transcription-pipeline`, grana `feat/in-context-generation` (audio i `series_bible.db` postoje samo tamo). Istraživački plan: `docs/plans/2026-11-27-plan-generisanja-iz-istrazivanja.md` (grana `claude/previous-work-results-b0e8f1`).
+**Gde se radi:** glavni checkout, `series-transcription-pipeline`, grana `feat/in-context-generation` (audio i `series_bible.db` postoje samo tamo). Istraživački plan: `docs/plans/2026-11-27-plan-generisanja-iz-istrazivanja.md` (na `master`).
 
 > ⚠️ Pre bilo kakvog brisanja: `git status --ignored`. Nikad `rm -rf` u `data/` (posebno `data/gold/` i `data/transcripts/`).
 
@@ -10,21 +10,22 @@
 
 | Dan | Fokus | Gotovo kad |
 |---|---|---|
-| Pon 30. 11 | Sređivanje + odluke | Grana ažurna, otvorena pitanja zatvorena |
-| Uto 1. 12 | Scene + izbor embedding modela | Recall@k za 2–3 modela na 30–50 upita, izabran model |
-| Sre 2. 12 | Pretraga scena u `chat_agent` | Novi prompt radi end-to-end, testovi prolaze |
-| Čet 3. 12 | Evaluacija u parovima | 30 poruka ocenjeno A/B, odluka o Fazi 1 |
-| Pet 4. 12 | Start Faze 2 + nedeljni pregled | Šema oznaka u gold editoru, 2–3 epizode obeležene, plan za sledeću nedelju |
+| ✅ Sub 28. 11 | Sređivanje + odluke (urađeno ranije) | Grana ažurna, otvorena pitanja zatvorena |
+| Pon 30. 11 | Scene + izbor embedding modela | Recall@k za bge-m3, e5-large i BM25 na 30–50 upita, izabran model |
+| Uto 1. 12 | Pretraga scena u `chat_agent` | Novi prompt radi end-to-end, testovi prolaze |
+| Sre 2. 12 | Evaluacija u parovima | 30 poruka ocenjeno A/B, odluka o Fazi 1 |
+| Čet 3. 12 | Start Faze 2 | Šema oznaka u gold editoru, 2–3 epizode obeležene |
+| Pet 4. 12 | Rezerva + nedeljni pregled | Ono što je kasnilo sustignuto, plan za sledeću nedelju |
 
 ---
 
-## Ponedeljak 30. 11 — sređivanje i odluke
+## ✅ Subota 28. 11 — sređivanje i odluke (prvobitno ponedeljak)
 
 **Kod i grane (≈1 h)**
 - [x] `git pull` na `feat/in-context-generation` (lokalno je 9 komitova iza `origin`). — urađeno 28. 11.
 - [x] Pregledati neprijavljene fajlove (`data/pipeline.db*`, `profiles_v1.zip`, `episode_generator/prompts/To roll out`, `.bak` baze) — odlučiti šta ide u git, šta u `.gitignore`, šta u arhivu. **Ništa ne brisati.** — urađeno 28. 11. (pipeline `c597a48`).
-- [ ] Otvoriti PR za `docs/plans/2026-11-27-plan-generisanja-iz-istrazivanja.md` (grana `claude/previous-work-results-b0e8f1`) i ovaj nedeljni plan, pa ih spojiti u `master`.
-- [ ] Nabaviti `HF_TOKEN` i ubaciti ga u `.env` — odblokira transkripciju 38 epizoda na čekanju (može da radi u pozadini preko nedelje).
+- [x] Otvoriti PR za `docs/plans/2026-11-27-plan-generisanja-iz-istrazivanja.md` (grana `claude/previous-work-results-b0e8f1`) i ovaj nedeljni plan, pa ih spojiti u `master`. — urađeno 28. 11. (PR #4, odluke u PR #5)
+- [x] Nabaviti `HF_TOKEN` i ubaciti ga u `.env` — odblokira transkripciju 38 epizoda na čekanju (može da radi u pozadini preko nedelje). — urađeno 28. 11.
 
 **Odluke (≈1 h) — zatvoriti otvorena pitanja iz istraživačkog plana**
 - [x] **Embedding model** — testiraju se `BAAI/bge-m3` (glavni kandidat) i `intfloat/multilingual-e5-large`, uz **BM25 kao osnovu**. `jina-embeddings-v3` ispada (nekomercijalna licenca, proveriti). Pobednik je model sa najboljim recall@10; ako nijedan ne pređe ~60%, hibrid (bge-m3 daje i retki vektor). *Razlog:* bge-m3 podržava srpski u latinici i ćirilici; BM25 pokazuje da li embedding uopšte donosi nešto.
@@ -36,18 +37,18 @@
 
 ---
 
-## Utorak 1. 12 — scene i izbor embedding modela
+## Ponedeljak 30. 11 — scene i izbor embedding modela
 
 1. [ ] **Sečenje na scene** (`chat_agent/scenes.py` ili skripta u `scripts/`): iz transkripata napraviti scene = bar jedna replika sagovornika + odgovor lika + okolni kontekst. Prvo samo gold set i epizode sa visokom pokrivenošću govornika (`scripts/speaker_coverage_report.py --metric text`, prag ≥ 0.85 po tekstu).
 2. [ ] **Test skup za pretragu:** 30–50 ručnih upita (poruka korisnika) sa očekivanim scenama. Sačuvati kao `tests/data/scene_retrieval_queries.json` da se može ponavljati.
-3. [ ] **Izmeriti recall@5 i recall@10** za 2–3 modela. Rezultate upisati u tabelu u plan.
+3. [ ] **Izmeriti recall@5 i recall@10** za `bge-m3`, `multilingual-e5-large` i BM25. Rezultate upisati u tabelu u plan.
 4. [ ] Izabrati model; izgraditi indeks scena po liku (Čvarkov, Torbica, Boškić).
 
 **Gotovo kad:** postoji tabela recall@k po modelima i indeks za izabrani model.
 
 ---
 
-## Sreda 2. 12 — pretraga scena u `chat_agent`
+## Utorak 1. 12 — pretraga scena u `chat_agent`
 
 Izmene u `chat_agent/character_prompt.py` (TDD: prvo testovi):
 1. [ ] Zameniti `ORDER BY RANDOM() LIMIT 15` pretragom scena po trenutnoj poruci; popunjavati do ≈1.500 tokena.
@@ -63,7 +64,7 @@ Izmene u `chat_agent/character_prompt.py` (TDD: prvo testovi):
 
 ---
 
-## Četvrtak 3. 12 — evaluacija u parovima
+## Sreda 2. 12 — evaluacija u parovima
 
 1. [ ] Fiksni skup od ≈30 poruka (mešavina: tema iz serije, svakodnevica, provokacija lika).
 2. [ ] Generisati odgovore stare i nove verzije; pomešati redosled A/B (slepo).
@@ -76,11 +77,17 @@ Izmene u `chat_agent/character_prompt.py` (TDD: prvo testovi):
 
 ---
 
-## Petak 4. 12 — start Faze 2 + pregled nedelje
+## Četvrtak 3. 12 — start Faze 2
 
 1. [ ] **Šema oznaka po sceni** u gold editoru (`tools/gold_editor`): povod, tip eskalacije, digresija (ko, na šta, vraća li se), birokratska logika (da/ne, kako), uloge (nameće / izvlači se / strada), pomenuti odsutni likovi, kraj scene. Testovi u `tests/test_gold_editor.py`.
 2. [ ] Ručno obeležiti 2–3 epizode iz gold seta (cilj za Fazu 2 je 10–15). Dodavati/spajati kategorije dok se ne ustale.
-3. [ ] **Nedeljni pregled (30 min):** šta je završeno, šta prelazi, plan za 7–11. 12 (nastavak Faze 2: 10–15 epizoda, LLM obeležavanje, mera slaganja ≥ 80%).
+
+---
+
+## Petak 4. 12 — rezerva + pregled nedelje
+
+1. [ ] Sustići ono što je kasnilo; ako ništa ne kasni, nastaviti obeležavanje epizoda za Fazu 2.
+2. [ ] **Nedeljni pregled (30 min):** šta je završeno, šta prelazi, plan za 7–11. 12 (nastavak Faze 2: 10–15 epizoda, LLM obeležavanje, mera slaganja ≥ 80%).
 
 ---
 
@@ -95,11 +102,11 @@ LinkedIn mini-serija i javljanje glumcima (demo + poziv na večeru) čekaju da p
 | Embedding loše nalazi scene na srpskom | Test na 30–50 upita pre ugradnje; ako svi modeli < ~60% recall@10, dodati BM25 hibrid |
 | Pogrešno pripisane replike u indeksu | Indeksirati prvo gold set + epizode sa visokom pokrivenošću po tekstu |
 | Nema vremena za ljudske ocene | 30 parova je minimum; ako zafali vremena, smanjiti na 20, ali ne preskakati |
-| `HF_TOKEN` kasni | Ne blokira Fazu 1; transkripcija 38 epizoda prelazi u sledeću nedelju |
+| Transkripcija 38 epizoda zapne | Ne blokira Fazu 1; `HF_TOKEN` je ubačen 28. 11, ostatak prelazi u sledeću nedelju |
 
 ## Podsetnici
 
-- **Ponedeljak 30. 11 u 9:00** — zakazani zadatak `podsetnik-plan-nedelje-start`: pregled nedelje i lista za ponedeljak.
+- **Ponedeljak 30. 11 u 9:00** — zakazani zadatak `podsetnik-plan-nedelje-start`: pregled nedelje i lista za ponedeljak (sada: scene i izbor embedding modela).
 - **Petak 4. 12 u 16:00** — zakazani zadatak `podsetnik-nedeljni-pregled`: šta je urađeno, šta prelazi, plan za 7–11. 12.
 
 Zadaci rade dok je Claude aplikacija otvorena; ako je zatvorena u zakazano vreme, pokrenu se pri sledećem otvaranju.
